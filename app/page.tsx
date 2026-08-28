@@ -2,13 +2,13 @@
 
 import React, { useState } from 'react';
 import { 
-  Truck, 
   Globe, 
   Home as HomeIcon, 
   Armchair, 
   Apple, 
   Building2, 
   Ship,
+  Truck,
   ArrowRight,
   Phone,
   Mail,
@@ -35,7 +35,6 @@ const FacebookIcon = () => (
 
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [logoError, setLogoError] = useState(false);
 
   const services = [
     {
@@ -83,11 +82,11 @@ export default function Home() {
   ];
 
   const steps = [
-    { num: "01", title: "Gazitransport Talep Analizi", desc: "Yükünüzün türü ve rotası Gazitransport uzmanlarınca incelenerek özel fiyatlandırma yapılır." },
-    { num: "02", title: "Güvenli Ambalajlama", desc: "Gazitransport ekipleri eşyalarınızı uluslararası nakliyeye uygun koruyucu malzemelerle paketler." },
-    { num: "03", title: "İhracat & Gümrük Çözümleri", desc: "Türkiye çıkışlı ve Avrupa/İngiltere girişli tüm gümrük prosedürleri Gazitransport tarafından yönetilir." },
-    { num: "04", title: "Uluslararası Nakliye", desc: "Gazitransport filosu yükünüzü hedeflenen Avrupa veya İngiltere rotasına hızla ulaştırır." },
-    { num: "05", title: "Adrese Kapıda Teslimat", desc: "Varış noktasında Gazitransport güvencesi ile sigortalı ve randevulu kapı teslimatı yapılır." }
+    { num: "01", title: "Talep Analizi", desc: "Yükünüzün türü ve rotası incelenerek özel fiyatlandırılır." },
+    { num: "02", title: "Güvenli Ambalajlama", desc: "Uluslararası nakliyeye uygun koruyucu ambalaj yapılır." },
+    { num: "03", title: "Gümrük Çözümleri", desc: "Çıkış ve varış gümrük prosedürleri yönetilir." },
+    { num: "04", title: "Uluslararası Nakliye", desc: "Filomuz yükü hedef ülkeye hızla ulaştırır." },
+    { num: "05", title: "Kapıda Teslimat", desc: "Varış noktasında sigortalı teslimat tamamlanır." }
   ];
 
   const socialLinks = [
@@ -116,6 +115,7 @@ export default function Home() {
               <span className="flex items-center gap-1.5"><Globe className="w-3.5 h-3.5 text-orange-500" /> Türkiye ↔ Avrupa & İngiltere Lojistik Hattı</span>
               <span className="hidden md:flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-orange-500" /> Kesintisiz Müşteri Desteği</span>
             </div>
+            
             <div className="flex items-center gap-6">
               <a href="mailto:info@gazicargo.com" className="hover:text-orange-400 transition flex items-center gap-1.5">
                 <Mail className="w-3.5 h-3.5 text-orange-500" /> info@gazicargo.com
@@ -129,22 +129,18 @@ export default function Home() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            <Link href="/" className="flex items-center">
-              {!logoError ? (
-                <img 
-                  src="/logo.png" 
-                  alt="Gazitransport Uluslararası Lojistik" 
-                  className="h-12 sm:h-14 w-auto object-contain"
-                  onError={() => setLogoError(true)}
-                />
-              ) : (
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md">G</div>
-                  <span className="text-xl font-black text-slate-900 tracking-tight">
-                    GAZI<span className="text-orange-600">TRANSPORT</span>
-                  </span>
-                </div>
-              )}
+            
+            {/* SADECE METİN LOGO TASARIMI (GÖRSEL / İKON İÇERMEZ, ASLA BOZULMAZ) */}
+            <Link href="/" className="flex flex-col group py-1">
+              <div className="text-2xl sm:text-3xl font-black tracking-tight leading-none text-slate-900 group-hover:opacity-90 transition">
+                GAZI<span className="text-orange-600">TRANSPORT</span>
+              </div>
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className="h-[2px] w-4 bg-orange-600 rounded-full"></span>
+                <span className="text-[10px] sm:text-[11px] font-extrabold text-slate-500 tracking-[0.2em] uppercase">
+                  Uluslararası Lojistik
+                </span>
+              </div>
             </Link>
 
             <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-700">
@@ -165,7 +161,7 @@ export default function Home() {
                 className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-md shadow-orange-600/20 transition duration-200 text-sm"
               >
                 <Calculator className="w-4 h-4" />
-                <span>Gönderi Hesapla</span>
+                <span>Gönderi Hesaplama</span>
               </Link>
 
               <button
@@ -184,15 +180,8 @@ export default function Home() {
             <a href="#hizmetlerimiz" onClick={() => setIsMenuOpen(false)} className="block py-2 text-base font-semibold text-slate-700">Hizmetlerimiz</a>
             <a href="#surec" onClick={() => setIsMenuOpen(false)} className="block py-2 text-base font-semibold text-slate-700">Operasyon Süreci</a>
             <Link href="/gonderi-hesaplama" onClick={() => setIsMenuOpen(false)} className="block py-2 text-base font-semibold text-slate-700">Gönderi Hesaplama</Link>
-            <Link href="/blog" onClick={() => setIsMenuOpen(false)} className="block py-2 text-base font-semibold text-slate-700">GaziTransport Blog</Link>
+            <Link href="/blog" onClick={() => setIsMenuOpen(false)} className="block py-2 text-base font-semibold text-slate-700">Blog</Link>
             <a href="#iletisim" onClick={() => setIsMenuOpen(false)} className="block py-2 text-base font-semibold text-slate-700">İletişim</a>
-            <Link
-              href="/gonderi-hesaplama"
-              onClick={() => setIsMenuOpen(false)}
-              className="block text-center bg-orange-600 text-white font-bold py-3 rounded-xl mt-2"
-            >
-              Gönderi Hesapla
-            </Link>
           </div>
         )}
       </header>
@@ -214,7 +203,7 @@ export default function Home() {
               </h1>
 
               <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed mb-8">
-                <strong className="text-slate-900 font-semibold">Gazitransport</strong>; ticari yüklerinizden gıda kargolarınıza, özel mobilya taşımacılığından zati ev eşyalarınıza kadar tüm sevkiyat sürecini uçtan uca yönetir. 
+                Gazitransport; ticari yüklerinizden gıda kargolarınıza, özel mobilya taşımacılığından zati ev eşyalarınıza kadar tüm sevkiyat sürecini uçtan uca yönetir.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
@@ -309,9 +298,17 @@ export default function Home() {
       <footer id="iletisim" className="bg-slate-900 text-white pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-t border-slate-800">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div className="space-y-4">
-            <span className="text-2xl font-black uppercase tracking-tight block text-white">
-              GAZI<span className="text-orange-500">TRANSPORT</span>
-            </span>
+            
+            {/* FOOTER YAZI LOGO TASARIMI */}
+            <div className="flex flex-col">
+              <span className="text-2xl font-black uppercase tracking-tight text-white">
+                GAZI<span className="text-orange-500">TRANSPORT</span>
+              </span>
+              <span className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase mt-0.5">
+                Uluslararası Lojistik
+              </span>
+            </div>
+
             <p className="text-xs text-slate-400 leading-relaxed">
               Gazitransport, Türkiye’den Avrupa ülkeleri ve İngiltere’ye bireysel ve ticari yük taşımacılığı sunar.
             </p>
@@ -379,7 +376,7 @@ export default function Home() {
         </div>
 
         <div className="max-w-7xl mx-auto pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
-          © {new Date().getFullYear()} GaziTransport Uluslararası Lojistik. Tüm hakları saklıdır.
+          © {new Date().getFullYear()} Gazitransport Uluslararası Lojistik. Tüm hakları saklıdır.
         </div>
       </footer>
 
