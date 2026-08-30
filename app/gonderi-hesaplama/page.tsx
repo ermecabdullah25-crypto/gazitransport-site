@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Search, Plus, Minus, Trash2, MessageCircle, Truck, MapPin, User, Globe } from "lucide-react";
+import { Search, Plus, Minus, Trash2, MessageCircle, Truck, MapPin, User, Globe, Mail, Phone } from "lucide-react";
 
 interface ItemData {
   id: string;
@@ -75,6 +75,21 @@ const ITEMS_DATABASE: ItemData[] = [
   { id: "yt15", name: "ELEKTRİK SÜPÜRGESİ", category: "YATAK ODASI", volume: 0.1 },
   { id: "yt16", name: "ÇİFT KİŞİLİK YATAK-BAZA-BAŞLIK", category: "YATAK ODASI", volume: 2.4 },
 
+  // ÇOCUK-GENÇ ODASI (Eklendi)
+  { id: "cg1", name: "ARABALI YATAK", category: "ÇOCUK-GENÇ ODASI", volume: 1.70 },
+  { id: "cg2", name: "MONTESSORİ YATAK", category: "ÇOCUK-GENÇ ODASI", volume: 1.50 },
+  { id: "cg3", name: "TEK KİŞİLİK YATAK-BAZA-BAŞLIK", category: "ÇOCUK-GENÇ ODASI", volume: 1.50 },
+  { id: "cg4", name: "ÇALIŞMA MASASI", category: "ÇOCUK-GENÇ ODASI", volume: 0.70 },
+  { id: "cg5", name: "OFİS SANDALYESİ", category: "ÇOCUK-GENÇ ODASI", volume: 0.40 },
+  { id: "cg6", name: "BİLGİSAYAR (TAKIM)", category: "ÇOCUK-GENÇ ODASI", volume: 0.30 },
+  { id: "cg7", name: "BEŞİK", category: "ÇOCUK-GENÇ ODASI", volume: 0.50 },
+  { id: "cg8", name: "MONİTÖR (17-27)", category: "ÇOCUK-GENÇ ODASI", volume: 0.10 },
+  { id: "cg9", name: "BİLGİSAYAR KASASI", category: "ÇOCUK-GENÇ ODASI", volume: 0.10 },
+  { id: "cg10", name: "AKÜLÜ ÇOCUK ARABASI", category: "ÇOCUK-GENÇ ODASI", volume: 0.30 },
+  { id: "cg11", name: "BEBEK ARABASI", category: "ÇOCUK-GENÇ ODASI", volume: 0.50 },
+  { id: "cg12", name: "BEBEK ARAÇ KOLTUĞU", category: "ÇOCUK-GENÇ ODASI", volume: 0.20 },
+  { id: "cg13", name: "OYUNCAK", category: "ÇOCUK-GENÇ ODASI" },
+
   // MUTFAK
   { id: "m1", name: "BUZDOLABI (BÜYÜK ÇİFT KAPILI)", category: "MUTFAK", volume: 1.5 },
   { id: "m2", name: "BUZDOLABI (STANDART)", category: "MUTFAK", volume: 1.1 },
@@ -94,6 +109,14 @@ const ITEMS_DATABASE: ItemData[] = [
   { id: "mo3", name: "MİSAFİR YATAĞI", category: "MİSAFİR ODASI", volume: 0.6 },
   { id: "mo4", name: "ÇEKYAT", category: "MİSAFİR ODASI", volume: 1.2 },
   { id: "mo5", name: "KATLANIR YATAK", category: "MİSAFİR ODASI", volume: 0.4 },
+
+  // BANYO (Eklendi)
+  { id: "b1", name: "ÇAMAŞIR MAKİNESİ", category: "BANYO", volume: 0.50 },
+  { id: "b2", name: "KURUTMA MAKİNESİ", category: "BANYO", volume: 0.50 },
+  { id: "b3", name: "ÇAMAŞIR SEPETİ", category: "BANYO", volume: 0.10 },
+  { id: "b4", name: "KLOZET", category: "BANYO", volume: 0.12 },
+  { id: "b5", name: "DUŞAKABİN", category: "BANYO" },
+  { id: "b6", name: "BANYO MALZEMESİ", category: "BANYO" },
 
   // HOL
   { id: "h1", name: "AYAKKABILIK (3-4 RAF)", category: "HOL", volume: 0.3 },
@@ -166,6 +189,8 @@ export default function GonderiHesaplamaPage() {
   
   // Müşteri Detayları
   const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
   
   // Alım Adresi
   const [pickupCountry, setPickupCountry] = useState("");
@@ -233,6 +258,8 @@ export default function GonderiHesaplamaPage() {
 
     let headerInfo = `Merhaba, nakliye teklifi almak istiyorum:\n\n`;
     if (customerName) headerInfo += `👤 Ad Soyad: ${customerName}\n`;
+    if (customerPhone) headerInfo += `📞 Telefon: ${customerPhone}\n`;
+    if (customerEmail) headerInfo += `✉️ E-posta: ${customerEmail}\n`;
     
     // Alım Adresi Mesajı
     if (pickupCountry || pickupCity || pickupZip) {
@@ -359,6 +386,7 @@ export default function GonderiHesaplamaPage() {
                 Taşıma Detayları (Opsiyonel)
               </h3>
               
+              {/* Ad Soyad */}
               <div className="relative">
                 <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
@@ -368,6 +396,30 @@ export default function GonderiHesaplamaPage() {
                   onChange={(e) => setCustomerName(e.target.value)}
                   className="w-full pl-10 pr-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-xs focus:outline-none focus:border-slate-400"
                 />
+              </div>
+
+              {/* Telefon ve E-posta */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                  <input
+                    type="tel"
+                    placeholder="Telefon"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    className="w-full pl-8 pr-2 py-2 rounded-lg border border-slate-200 bg-slate-50 text-xs focus:outline-none focus:border-slate-400"
+                  />
+                </div>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                  <input
+                    type="email"
+                    placeholder="E-posta"
+                    value={customerEmail}
+                    onChange={(e) => setCustomerEmail(e.target.value)}
+                    className="w-full pl-8 pr-2 py-2 rounded-lg border border-slate-200 bg-slate-50 text-xs focus:outline-none focus:border-slate-400"
+                  />
+                </div>
               </div>
 
               {/* ALIM ADRESİ */}
