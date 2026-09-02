@@ -12,6 +12,10 @@ export const metadata: Metadata = {
     "eşya taşıma",
     "gazitransport",
   ],
+  // İKONU BURADA TANIMLIYORUZ:
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
