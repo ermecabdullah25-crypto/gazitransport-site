@@ -107,10 +107,19 @@ export default function Home() {
   ];
 
   return (
-    <main className="min-h-screen bg-white text-slate-800 font-sans selection:bg-orange-500 selection:text-white">
+    <main className="min-h-screen bg-white text-slate-800 font-sans selection:bg-orange-500 selection:text-white relative">
       
+      {/* SAĞ ALT KÖŞE SABİT HIZLI ARAMA BUTONU */}
+      <a
+        href="tel:+905368310636"
+        aria-label="Hemen Ara"
+        className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 bg-green-600 hover:bg-green-700 text-white rounded-full shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white"
+      >
+        <Phone className="w-7 h-7 animate-bounce" />
+      </a>
+
       {/* 1. TOP BAR & HEADER */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
         <div className="bg-slate-900 text-slate-300 py-2 text-xs border-b border-slate-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <div className="flex items-center gap-2 sm:gap-6">
@@ -127,7 +136,7 @@ export default function Home() {
               <a href="mailto:info@gazicargo.com" className="hidden md:flex hover:text-orange-400 transition items-center gap-1.5">
                 <Mail className="w-3.5 h-3.5 text-orange-500" /> info@gazicargo.com
               </a>
-              <a href="https://wa.me/905368310636" target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition flex items-center gap-1.5 font-semibold text-emerald-400">
+              <a href="tel:+905368310636" className="hover:text-orange-400 transition flex items-center gap-1.5 font-semibold text-emerald-400">
                 <Phone className="w-3.5 h-3.5 shrink-0" /> +90 536 831 06 36
               </a>
             </div>
@@ -264,21 +273,23 @@ export default function Home() {
                 Gazitransport; ticari yüklerinizden gıda kargolarınıza, özel mobilya taşımacılığından zati ev eşyalarınıza kadar tüm sevkiyat sürecini uçtan uca yönetir.
               </p>
 
+              {/* ARAMA BUTONLARI VE HESAPLAMA GRUBU */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                {/* DOĞRUDAN ARAMA YAPAN YEŞİL BUTON */}
+                <a
+                  href="tel:+905368310636"
+                  className="flex items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white font-bold px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl shadow-lg shadow-green-600/25 transition duration-200 text-sm sm:text-base w-full sm:w-auto"
+                >
+                  <Phone className="w-5 h-5 shrink-0" />
+                  <span>Hemen Ara (+90 536 831 06 36)</span>
+                </a>
+
                 <Link
                   href="/gonderi-hesaplama"
                   className="flex items-center justify-center gap-3 bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl shadow-lg shadow-orange-600/25 transition duration-200 text-sm sm:text-base w-full sm:w-auto"
                 >
                   <Calculator className="w-5 h-5" />
-                  <span>Anında m³ & Gönderi Hesapla</span>
-                </Link>
-
-                <Link
-                  href="/blog"
-                  className="flex items-center justify-center gap-2 bg-white hover:bg-slate-100 text-slate-800 font-bold px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl border border-slate-300 shadow-sm transition duration-200 text-sm sm:text-base w-full sm:w-auto"
-                >
-                  <BookOpen className="w-5 h-5 text-orange-600" />
-                  <span>GaziTransport Blog</span>
+                  <span>Anında m³ Hesapla</span>
                 </Link>
               </div>
             </div>
@@ -376,8 +387,8 @@ export default function Home() {
             <ul className="space-y-3 text-xs text-slate-400">
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-orange-500 shrink-0" /> 
-                <a href="https://wa.me/905368310636" target="_blank" rel="noopener noreferrer" className="hover:text-white transition truncate">
-                  WhatsApp: +90 536 831 06 36
+                <a href="tel:+905368310636" className="hover:text-white transition truncate">
+                  Telefon: +90 536 831 06 36
                 </a>
               </li>
               <li className="flex items-center gap-2">
