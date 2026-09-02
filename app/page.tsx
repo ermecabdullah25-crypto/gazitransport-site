@@ -320,13 +320,15 @@ export default function Home() {
             <div key={service.slug} className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 hover:border-orange-500/50 hover:shadow-xl transition duration-300 flex flex-col justify-between group">
               <div>
                 <div className="flex items-center justify-between mb-5 sm:mb-6">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-orange-50 rounded-xl flex items-center justify-center border border-orange-100 group-hover:bg-orange-600 group-hover:text-white transition duration-300 shrink-0">
+                  {/* İkon Kapsayıcısı: Renk sabit tutuldu */}
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-orange-50 rounded-xl flex items-center justify-center border border-orange-100 shrink-0">
                     {service.icon}
                   </div>
                   <span className="text-xs font-semibold bg-slate-100 text-slate-700 px-3 py-1 rounded-full border border-slate-200">
                     {service.badge}
                   </span>
                 </div>
+                {/* Sadece Başlık Yazısı Kart Üzerine Gelindiğinde Turuncu Olur */}
                 <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 sm:mb-3 group-hover:text-orange-600 transition">{service.title}</h3>
                 <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-6">{service.description}</p>
               </div>
