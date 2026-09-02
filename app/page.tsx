@@ -281,7 +281,7 @@ export default function Home() {
                   className="flex items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white font-bold px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl shadow-lg shadow-green-600/25 transition duration-200 text-sm sm:text-base w-full sm:w-auto"
                 >
                   <Phone className="w-5 h-5 shrink-0" />
-                  <span>Hemen Ara (+90 536 831 06 36)</span>
+                  <span>Bize Ulaşın</span>
                 </a>
 
                 <Link
