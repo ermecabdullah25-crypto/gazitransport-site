@@ -11,12 +11,10 @@ export async function GET(request: NextRequest) {
   const cleanCode = takipNo.trim().toUpperCase();
 
   try {
-    // Gazi Portal'ın Firestore veritabanı REST API sorguları
-    // Koleksiyon adları: cargos, cargo, kargolar veya takip
-    const possibleCollections = ['cargos', 'cargo', 'kargolar', 'takip'];
-    
+    const possibleCollections = ['yukler', 'cargos', 'kargolar'];
     let docData: any = null;
 
+    // 1. Firestore REST API: Doğrudan ID üzerinden kontrol
     for (const coll of possibleCollections) {
       const firestoreUrl = `https://firestore.googleapis.com/v1/projects/gaziportal-b2f52/databases/(default)/documents/${coll}/${encodeURIComponent(cleanCode)}`;
       
@@ -31,7 +29,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Eğer doğrudan ID ile bulunamadıysa Firestore StructuredQuery ile arama yap
+    // 2. ID ile bulunamadıysa "takipNo" alanına göre StructuredQuery ile ara
     if (!docData) {
       const queryUrl = `https://firestore.googleapis.com/v1/projects/gaziportal-b2f52/databases/(default)/documents:runQuery`;
       
@@ -41,7 +39,7 @@ export async function GET(request: NextRequest) {
             from: [{ collectionId: coll }],
             where: {
               fieldFilter: {
-                field: { fieldPath: 'trackingNo' },
+                field: { fieldPath: 'takipNo' },
                 op: 'EQUAL',
                 value: { stringValue: cleanCode }
               }
@@ -66,14 +64,21 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Firestore verisini çözme fonksiyonu
+    // Firestore BSON/Typed JSON formatını düz nesnelere dönüştüren yardımcı fonksiyon
     const parseFirestoreValue = (valObj: any): any => {
       if (!valObj) return '';
       if (valObj.stringValue !== undefined) return valObj.stringValue;
-      if (valObj.integerValue !== undefined) return valObj.integerValue;
-      if (valObj.doubleValue !== undefined) return valObj.doubleValue;
+      if (valObj.integerValue !== undefined) return Number(valObj.integerValue);
+      if (valObj.doubleValue !== undefined) return Number(valObj.doubleValue);
       if (valObj.booleanValue !== undefined) return valObj.booleanValue;
       if (valObj.timestampValue !== undefined) return valObj.timestampValue;
+      
+      // Array / Dizi
+      if (valObj.arrayValue?.values) {
+        return valObj.arrayValue.values.map((v: any) => parseFirestoreValue(v));
+      }
+      
+      // Map / Obje
       if (valObj.mapValue?.fields) {
         const obj: any = {};
         for (const k in valObj.mapValue.fields) {
@@ -84,6 +89,7 @@ export async function GET(request: NextRequest) {
       return '';
     };
 
+    // Veri bulunduysa yanıtı düzenle ve gönder
     if (docData && docData.fields) {
       const fields = docData.fields;
       const parsed: any = {};
@@ -91,29 +97,34 @@ export async function GET(request: NextRequest) {
         parsed[key] = parseFirestoreValue(fields[key]);
       }
 
+      // Hacim ve Ağırlık Metni
+      const volumeWeightText = (parsed.toplamM3 !== undefined || parsed.toplamKg !== undefined)
+        ? `${parsed.toplamM3 || 0} m³ / ${parsed.toplamKg || 0} KG`
+        : (parsed.hacimAgirlik || '-');
+
       return NextResponse.json({
         success: true,
         data: {
-          trackingNo: cleanCode,
-          currentStatus: parsed.status || parsed.durum || parsed.currentStatus || 'DEPODA',
-          location: parsed.konum || parsed.location || parsed.ulke || parsed.bulunduguKonum || 'Türkiye',
-          sender: parsed.gonderici || parsed.sender || parsed.gonderen || '-',
-          receiver: parsed.alici || parsed.receiver || parsed.alan || '-',
-          createdDate: parsed.kayitTarihi || parsed.tarih || parsed.createdAt || parsed.createdDate || '-',
-          volumeWeight: parsed.hacimAgirlik || parsed.agirlik || parsed.volumeWeight || parsed.toplamHacim || '-',
-          content: parsed.icerik || parsed.tasinanIcerik || parsed.content || '-'
+          trackingNo: parsed.takipNo || cleanCode,
+          currentStatus: parsed.durum || parsed.yukDurumu || 'Hazırlanıyor',
+          location: parsed.bulunduguUlke || parsed.konum || parsed.mevcutKonum || parsed.ulke || 'Türkiye',
+          sender: parsed.gondericiCari || parsed.gonderici || '-',
+          receiver: parsed.aliciCari || parsed.alici || '-',
+          createdDate: parsed.tarih || parsed.kayitTarihi || '-',
+          volumeWeight: volumeWeightText,
+          items: parsed.kalemler || parsed.yukIcerik || []
         }
       });
     }
 
-    // Eğer veritabanında bulunamadıysa web scraping fallback'i
-    const targetUrl = `https://gaziportal-b2f52.web.app/kargo-takip.html?takipNo=${encodeURIComponent(cleanCode)}`;
-    const htmlRes = await fetch(targetUrl, { cache: 'no-store' });
-    const htmlText = await htmlRes.text();
-
-    return NextResponse.json({ success: true, html: htmlText, trackingNo: cleanCode });
+    // Veri bulunamadığında 404 dön
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Belirtilen takip numarasına ait yük bulunamadı.' 
+    }, { status: 404 });
 
   } catch (error) {
+    console.error("API Hatası:", error);
     return NextResponse.json({ error: 'Sunucu hatası oluştu' }, { status: 500 });
   }
 }
