@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   Globe, 
   Home as HomeIcon, 
@@ -20,7 +21,9 @@ import {
   BookOpen,
   ShieldCheck,
   Lock,
-  Boxes
+  Boxes,
+  Search,
+  Package
 } from 'lucide-react';
 
 const InstagramIcon = ({ className = "w-4 h-4 fill-current" }: { className?: string }) => (
@@ -37,8 +40,16 @@ const FacebookIcon = ({ className = "w-4 h-4 fill-current" }: { className?: stri
 
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [trackingCode, setTrackingCode] = useState('');
+  const router = useRouter();
 
   const closeMenu = () => setIsMenuOpen(false);
+
+  const handleTrackingSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!trackingCode.trim()) return;
+    router.push(`/kargo-takip?no=${encodeURIComponent(trackingCode.trim())}`);
+  };
 
   const services = [
     {
@@ -163,6 +174,9 @@ export default function Home() {
               <Link href="/" className="text-orange-600 font-bold">Ana Sayfa</Link>
               <a href="#hizmetlerimiz" className="hover:text-orange-600 transition">Hizmetlerimiz</a>
               <a href="#surec" className="hover:text-orange-600 transition">Operasyon Süreci</a>
+              <Link href="/kargo-takip" className="hover:text-orange-600 transition text-orange-600 font-semibold flex items-center gap-1">
+                <Package className="w-4 h-4" /> Kargo Takip
+              </Link>
               <Link href="/blog" className="hover:text-orange-600 transition">Blog</Link>
               <a href="#iletisim" className="hover:text-orange-600 transition">İletişim</a>
             </nav>
@@ -199,6 +213,9 @@ export default function Home() {
           <nav className="lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-2 shadow-2xl">
             <Link href="/" onClick={closeMenu} className="flex items-center gap-3 py-2 px-3 rounded-lg text-sm font-semibold text-orange-600 bg-orange-50">
               <HomeIcon className="w-4 h-4" /> Ana Sayfa
+            </Link>
+            <Link href="/kargo-takip" onClick={closeMenu} className="flex items-center gap-3 py-2 px-3 rounded-lg text-sm font-semibold text-orange-600 hover:bg-orange-50">
+              <Package className="w-4 h-4" /> Kargo Takip
             </Link>
             <a href="#hizmetlerimiz" onClick={closeMenu} className="flex items-center gap-3 py-2 px-3 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50">
               <Truck className="w-4 h-4 text-slate-400" /> Hizmetlerimiz
@@ -252,9 +269,32 @@ export default function Home() {
               </span> Uluslararası Taşımacılık
             </h1>
 
-            <p className="text-sm sm:text-lg text-slate-300 font-normal leading-relaxed mb-8 max-w-2xl">
+            <p className="text-sm sm:text-lg text-slate-300 font-normal leading-relaxed mb-6 max-w-2xl">
               Ticari yüklerinizden gıda lojistiğine, özel mobilya nakliyesinden ev eşyalarınıza tüm sevkiyat operasyonunu gümrükleme dahil kapıdan kapıya yönetiyoruz.
             </p>
+
+            {/* HIZLI KARGO TAKİP ARAMA KUTUSU */}
+            <form onSubmit={handleTrackingSearch} className="mb-8 max-w-xl">
+              <div className="bg-slate-900/90 backdrop-blur-md p-2 rounded-2xl border border-slate-700/80 shadow-2xl flex flex-col sm:flex-row items-center gap-2">
+                <div className="flex items-center gap-3 px-3 py-2 w-full">
+                  <Package className="w-5 h-5 text-orange-500 shrink-0" />
+                  <input
+                    type="text"
+                    value={trackingCode}
+                    onChange={(e) => setTrackingCode(e.target.value)}
+                    placeholder="Kargo / Gönderi Takip No..."
+                    className="bg-transparent text-white placeholder:text-slate-400 text-sm font-medium focus:outline-none w-full"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full sm:w-auto px-6 py-3 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 shrink-0 shadow-lg shadow-orange-600/30"
+                >
+                  <Search className="w-4 h-4" />
+                  <span>Kargo Sorgula</span>
+                </button>
+              </div>
+            </form>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
               <Link
@@ -414,6 +454,11 @@ export default function Home() {
           <div>
             <h3 className="text-white font-bold mb-3 text-sm">Hızlı Bağlantılar</h3>
             <ul className="space-y-2 text-xs text-slate-400">
+              <li>
+                <Link href="/kargo-takip" className="hover:text-orange-400 transition flex items-center gap-1.5 font-medium text-orange-400">
+                  <Package className="w-3.5 h-3.5 text-orange-500 shrink-0" /> Kargo Takip
+                </Link>
+              </li>
               <li>
                 <Link href="/gonderi-hesaplama" className="hover:text-orange-400 transition flex items-center gap-1.5">
                   <HomeIcon className="w-3.5 h-3.5 text-orange-500 shrink-0" /> Ev Eşyası Hesaplama
