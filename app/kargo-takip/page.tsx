@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Package, Search, Truck, MapPin, Calendar, User, Box, Weight, AlertTriangle } from 'lucide-react';
 
@@ -21,6 +21,7 @@ function KargoTakipContent() {
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [shipment, setShipment] = useState<ShipmentData | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {
     const codeFromUrl = searchParams.get('takipNo') || searchParams.get('no') || searchParams.get('code');
@@ -39,58 +40,70 @@ function KargoTakipContent() {
     setShipment(null);
 
     try {
-      // API'den HTML verisini çekiyoruz
-      const res = await fetch(`/api/kargo-takip?takipNo=${encodeURIComponent(cleanCode)}`);
-      const data = await res.json();
+      // 1. AllOrigins / CorsProxy üzerinden dinamik veriyi çekmeyi dene
+      const targetUrl = `https://gaziportal-b2f52.web.app/kargo-takip.html?takipNo=${encodeURIComponent(cleanCode)}`;
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}&timestamp=${Date.now()}`;
 
-      if (!res.ok || !data.html) {
-        throw new Error('Kargo verisi bulunamadı');
+      const res = await fetch(proxyUrl);
+      const proxyData = await res.json();
+
+      let htmlContent = proxyData?.contents || '';
+
+      if (!htmlContent) {
+        // Fallback: Doğrudan Vercel API'den al
+        const localRes = await fetch(`/api/kargo-takip?takipNo=${encodeURIComponent(cleanCode)}`);
+        const localData = await localRes.json();
+        htmlContent = localData.html || '';
       }
 
-      // DOM Parser ile sayfayı tarıyoruz
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(data.html, 'text/html');
+      if (!htmlContent) {
+        throw new Error('Veri alınamadı');
+      }
 
-      // Sayfadaki metin / etiket okuyucu yardımcı fonksiyon
-      const findTextAfterLabel = (labelPattern: RegExp): string => {
-        const allElements = Array.from(doc.body.querySelectorAll('*'));
-        for (const el of allElements) {
-          if (el.children.length === 0 && labelPattern.test(el.textContent || '')) {
-            // Etiketin kendi ebeveynindeki veya yanındaki metni al
-            const parentText = el.parentElement?.textContent || '';
-            const match = parentText.split(':');
-            if (match.length > 1) {
-              return match.slice(1).join(':').trim();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlContent, 'text/html');
+
+      // Metin arama yardımı
+      const extractField = (labels: string[]): string => {
+        const elements = Array.from(doc.querySelectorAll('*'));
+        for (const el of elements) {
+          const text = el.textContent || '';
+          for (const label of labels) {
+            if (text.toLowerCase().includes(label.toLowerCase())) {
+              const parts = text.split(':');
+              if (parts.length > 1) {
+                const val = parts.slice(1).join(':').trim();
+                if (val && val.length < 100) return val;
+              }
             }
           }
         }
         return '';
       };
 
-      // Durum tespiti (DEPODA vb.)
-      let currentStatus = 'DEPODA';
-      const statusElement = doc.querySelector('.status, #status, [class*="status"], [class*="badge"]');
-      if (statusElement && statusElement.textContent?.trim()) {
-        currentStatus = statusElement.textContent.trim();
+      // Durum Tespiti
+      let currentStatus = '';
+      const statusMatch = htmlContent.match(/(DEPODA|YOLDA|TESLİM EDİLDİ|İŞLEMDE|HAZIRLANIYOR)/i);
+      if (statusMatch) {
+        currentStatus = statusMatch[0].toUpperCase();
       }
 
-      // Etiketlere göre verileri okuma
-      const location = findTextAfterLabel(/Bulunduğu Konum/i) || findTextAfterLabel(/Konum/i) || 'Türkiye';
-      const sender = findTextAfterLabel(/Gönderici/i) || 'AYDIN BEY';
-      const receiver = findTextAfterLabel(/Alıcı/i) || 'AYDIN BEY';
-      const createdDate = findTextAfterLabel(/Kayıt Tarihi/i) || '2026-09-11';
-      const volumeWeight = findTextAfterLabel(/Toplam Hacim/i) || findTextAfterLabel(/Ağırlık/i) || '1.024 m³ / 50.00 KG';
-      const content = findTextAfterLabel(/Taşınan İçerik/i) || findTextAfterLabel(/İçerik/i) || 'saz (2 Koli)';
+      const location = extractField(['Bulunduğu Konum', 'Konum', 'Ülke']);
+      const sender = extractField(['Gönderici']);
+      const receiver = extractField(['Alıcı']);
+      const createdDate = extractField(['Kayıt Tarihi', 'Tarih']);
+      const volumeWeight = extractField(['Toplam Hacim', 'Ağırlık', 'Hacim']);
+      const content = extractField(['Taşınan İçerik', 'İçerik']);
 
       setShipment({
         trackingNo: cleanCode,
-        currentStatus: currentStatus,
-        location: location,
-        sender: sender,
-        receiver: receiver,
-        createdDate: createdDate,
-        volumeWeight: volumeWeight,
-        content: content
+        currentStatus: currentStatus || 'DEPODA',
+        location: location || '-',
+        sender: sender || '-',
+        receiver: receiver || '-',
+        createdDate: createdDate || '-',
+        volumeWeight: volumeWeight || '-',
+        content: content || '-'
       });
 
     } catch (error) {
@@ -110,7 +123,7 @@ function KargoTakipContent() {
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-8">
         
-        {/* ARAMA KUTUSU (Mevcut Tasarımınız) */}
+        {/* ARAMA KUTUSU */}
         <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200/80 text-center">
           <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-700 px-4 py-1.5 rounded-full text-xs font-bold mb-4">
             <Package className="w-4 h-4" />
@@ -132,7 +145,7 @@ function KargoTakipContent() {
                   type="text"
                   value={trackingNo}
                   onChange={(e) => setTrackingNo(e.target.value)}
-                  placeholder="Takip Kodunuz (Örn: GZ-727164)"
+                  placeholder="Takip Kodunuz (Örn: GZ-821570)"
                   className="bg-transparent w-full text-slate-900 placeholder:text-slate-400 font-bold text-sm focus:outline-none uppercase"
                 />
               </div>
@@ -165,7 +178,7 @@ function KargoTakipContent() {
           </div>
         )}
 
-        {/* SİZİN MEVCUT TASARIMINIZ (DEĞİŞTİRİLMEDİ) */}
+        {/* BİLGİ KARTLARI */}
         {hasSearched && !loading && shipment && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200 space-y-6">
             
