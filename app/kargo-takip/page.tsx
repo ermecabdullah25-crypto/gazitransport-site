@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Package, Search, Truck, MapPin, Calendar, User, Box, Weight, AlertTriangle } from 'lucide-react';
 
@@ -21,7 +21,6 @@ function KargoTakipContent() {
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [shipment, setShipment] = useState<ShipmentData | null>(null);
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {
     const codeFromUrl = searchParams.get('takipNo') || searchParams.get('no') || searchParams.get('code');
@@ -40,71 +39,56 @@ function KargoTakipContent() {
     setShipment(null);
 
     try {
-      // 1. AllOrigins / CorsProxy üzerinden dinamik veriyi çekmeyi dene
-      const targetUrl = `https://gaziportal-b2f52.web.app/kargo-takip.html?takipNo=${encodeURIComponent(cleanCode)}`;
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}&timestamp=${Date.now()}`;
+      // Doğrudan kendi Next.js API Route'umuza istek atıyoruz (CORS Hangi Kesinlikle Yaşanmaz)
+      const res = await fetch(`/api/kargo-takip?takipNo=${encodeURIComponent(cleanCode)}`);
+      const result = await res.json();
 
-      const res = await fetch(proxyUrl);
-      const proxyData = await res.json();
-
-      let htmlContent = proxyData?.contents || '';
-
-      if (!htmlContent) {
-        // Fallback: Doğrudan Vercel API'den al
-        const localRes = await fetch(`/api/kargo-takip?takipNo=${encodeURIComponent(cleanCode)}`);
-        const localData = await localRes.json();
-        htmlContent = localData.html || '';
+      if (!res.ok) {
+        throw new Error(result.error || 'Kargo bulunamadı');
       }
 
-      if (!htmlContent) {
-        throw new Error('Veri alınamadı');
+      // 1. Veri doğrudan JSON olarak geldiyse
+      if (result.data) {
+        setShipment(result.data);
+        return;
       }
 
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlContent, 'text/html');
+      // 2. HTML geldiyse Regex / DOM ayıklama
+      if (result.html) {
+        const html = result.html as string;
 
-      // Metin arama yardımı
-      const extractField = (labels: string[]): string => {
-        const elements = Array.from(doc.querySelectorAll('*'));
-        for (const el of elements) {
-          const text = el.textContent || '';
-          for (const label of labels) {
-            if (text.toLowerCase().includes(label.toLowerCase())) {
-              const parts = text.split(':');
-              if (parts.length > 1) {
-                const val = parts.slice(1).join(':').trim();
-                if (val && val.length < 100) return val;
+        const getValueByRegex = (patterns: RegExp[]): string => {
+          for (const pattern of patterns) {
+            const match = html.match(pattern);
+            if (match && match[1]) {
+              const val = match[1].replace(/<[^>]*>/g, '').trim();
+              if (val && !val.includes('Gazi') && !val.includes('Takip')) {
+                return val;
               }
             }
           }
-        }
-        return '';
-      };
+          return '-';
+        };
 
-      // Durum Tespiti
-      let currentStatus = '';
-      const statusMatch = htmlContent.match(/(DEPODA|YOLDA|TESLİM EDİLDİ|İŞLEMDE|HAZIRLANIYOR)/i);
-      if (statusMatch) {
-        currentStatus = statusMatch[0].toUpperCase();
+        const statusMatch = html.match(/(DEPODA|YOLDA|TESLİM EDİLDİ|İŞLEMDE|HAZIRLANIYOR)/i);
+
+        setShipment({
+          trackingNo: cleanCode,
+          currentStatus: statusMatch ? statusMatch[0].toUpperCase() : 'DEPODA',
+          location: getValueByRegex([
+            /Bulunduğu Konum\s*[\/:]*\s*Ülke[\s:]*([^<]+)/i,
+            /Konum[\s:]+([^<]+)/i
+          ]) || 'Türkiye',
+          sender: getValueByRegex([/Gönderici[\s:]+([^<]+)/i]),
+          receiver: getValueByRegex([/Alıcı[\s:]+([^<]+)/i]),
+          createdDate: getValueByRegex([/Kayıt Tarihi[\s:]+([^<]+)/i]),
+          volumeWeight: getValueByRegex([
+            /Toplam Hacim\s*[\/:]*\s*Ağırlık[\s:]*([^<]+)/i,
+            /Ağırlık[\s:]+([^<]+)/i
+          ]),
+          content: getValueByRegex([/Taşınan İçerik[\s:]+([^<]+)/i, /İçerik[\s:]+([^<]+)/i])
+        });
       }
-
-      const location = extractField(['Bulunduğu Konum', 'Konum', 'Ülke']);
-      const sender = extractField(['Gönderici']);
-      const receiver = extractField(['Alıcı']);
-      const createdDate = extractField(['Kayıt Tarihi', 'Tarih']);
-      const volumeWeight = extractField(['Toplam Hacim', 'Ağırlık', 'Hacim']);
-      const content = extractField(['Taşınan İçerik', 'İçerik']);
-
-      setShipment({
-        trackingNo: cleanCode,
-        currentStatus: currentStatus || 'DEPODA',
-        location: location || '-',
-        sender: sender || '-',
-        receiver: receiver || '-',
-        createdDate: createdDate || '-',
-        volumeWeight: volumeWeight || '-',
-        content: content || '-'
-      });
 
     } catch (error) {
       console.error('Sorgulama hatası:', error);
@@ -173,12 +157,12 @@ function KargoTakipContent() {
             <AlertTriangle className="w-10 h-10 text-red-500 mx-auto mb-2" />
             <h3 className="text-lg font-bold">Kargo Kaydı Bulunamadı</h3>
             <p className="text-xs sm:text-sm text-red-600 mt-1">
-              "<span className="font-extrabold">{trackingNo.toUpperCase()}</span>" numaralı takip koduna ait veri bulunamadı.
+              "<span className="font-extrabold">{trackingNo.toUpperCase()}</span>" numaralı takip koduna ait veri bulunamadı. Lütfen kargo kodunuzu kontrol ediniz.
             </p>
           </div>
         )}
 
-        {/* BİLGİ KARTLARI */}
+        {/* MEVCUT ŞIK TASARIMINIZ */}
         {hasSearched && !loading && shipment && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200 space-y-6">
             
