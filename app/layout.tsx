@@ -69,14 +69,10 @@ export default function RootLayout({
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON-stringify(schemaData) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
         />
       </head>
       <body>{children}</body>
     </html>
   );
-}
-
-function JSON-stringify(obj: any) {
-  return JSON.stringify(obj);
 }
