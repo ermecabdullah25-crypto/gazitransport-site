@@ -23,8 +23,7 @@ import {
   Lock,
   Boxes,
   Search,
-  Package,
-  HelpCircle
+  Package
 } from 'lucide-react';
 
 const InstagramIcon = ({ className = "w-4 h-4 fill-current" }: { className?: string }) => (
@@ -105,25 +104,6 @@ export default function Home() {
     { num: "05", title: "Kapıda Teslimat", desc: "Adrese sigortalı teslimat tamamlanır." }
   ];
 
-  const faqs = [
-    {
-      question: "Türkiye'den Avrupa'ya ve İngiltere'ye ev eşyası veya ticari yük nasıl gönderilir?",
-      answer: "Gazitransport; Türkiye'den Almanya, İngiltere, Hollanda, Fransa ve tüm Avrupa ülkelerine kapıdan kapıya ambalajlı, sigortalı ve gümrükleme dahil zati eşya ve ticari yük taşımacılığı sunmaktadır. Paketleme, araç yükleme ve gümrük prosedürleri uçtan uca uzman ekibimiz tarafından yönetilir."
-    },
-    {
-      question: "Yurt dışına eşya gönderirken gümrük işlemleri nasıl yürütülür?",
-      answer: "Gazitransport gümrük müşavirliği ve sertifikalı acenteleri aracılığıyla hem Türkiye çıkış gümrüklemelerini hem de varış ülkesindeki ithalat/zati eşya gümrük beyannamelerini sizin adınıza tamamlar."
-    },
-    {
-      question: "Zati eşya (ev eşyası) taşımacılığında vergi ödenir mi?",
-      answer: "Yurt dışına yerleşen veya taşınan bireyler için zati eşya muafiyeti şartları sağlandığında gümrük vergisi ödenmeden eşya nakliyesi yapılabilmektedir. Detaylı evrak desteği tarafımızdan verilmektedir."
-    },
-    {
-      question: "Uluslararası taşımacılık fiyatları nasıl hesaplanır?",
-      answer: "Fiyatlar taşınacak yükün hacmi (m3), ağırlığı, çıkış ve varış adresleri ile seçilen ek hizmetlere (ambalaj, gümrükleme vb.) göre özel olarak hesaplanır. Sitemizdeki hesaplama araçlarını kullanarak anında teklif alabilirsiniz."
-    }
-  ];
-
   const socialLinks = [
     { 
       name: "Instagram", 
@@ -139,29 +119,9 @@ export default function Home() {
     },
   ];
 
-  // Yapay Zekalar için SSS (FAQPage) Yapısal Verisi
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": faqs.map(faq => ({
-      "@type": "Question",
-      "name": faq.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": faq.answer
-      }
-    }))
-  };
-
   return (
     <main className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-orange-500 selection:text-white relative">
       
-      {/* YAPAY ZEKA SSS ŞEMASI */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-
       {/* SAĞ ALT KÖŞE HIZLI ARAMA */}
       <a
         href="tel:+905368310636"
@@ -214,7 +174,6 @@ export default function Home() {
               <Link href="/" className="text-orange-600 font-bold">Ana Sayfa</Link>
               <a href="#hizmetlerimiz" className="hover:text-orange-600 transition">Hizmetlerimiz</a>
               <a href="#surec" className="hover:text-orange-600 transition">Operasyon Süreci</a>
-              <a href="#sss" className="hover:text-orange-600 transition">Sıkça Sorulan Sorular</a>
               <Link href="/kargo-takip" className="hover:text-orange-600 transition text-orange-600 font-semibold flex items-center gap-1">
                 <Package className="w-4 h-4" /> Kargo Takip
               </Link>
@@ -264,9 +223,6 @@ export default function Home() {
             <a href="#surec" onClick={closeMenu} className="flex items-center gap-3 py-2 px-3 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50">
               <Clock className="w-4 h-4 text-slate-400" /> Operasyon Süreci
             </a>
-            <a href="#sss" onClick={closeMenu} className="flex items-center gap-3 py-2 px-3 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50">
-              <HelpCircle className="w-4 h-4 text-slate-400" /> SSS
-            </a>
             <Link href="/blog" onClick={closeMenu} className="flex items-center gap-3 py-2 px-3 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50">
               <BookOpen className="w-4 h-4 text-orange-600" /> Blog
             </Link>
@@ -285,8 +241,10 @@ export default function Home() {
         )}
       </header>
 
-      {/* 2. HERO SECTION */}
+      {/* 2. TIR GAZITRANSPORT ARKA PLANLI & TAM EKRANA SIĞAN HERO SECTION */}
       <section id="anasayfa" className="relative min-h-[calc(100vh-80px)] flex items-center justify-center bg-slate-950 overflow-hidden py-10">
+        
+        {/* LOJİSTİK TIR ARKA PLAN GÖRSELİ */}
         <div className="absolute inset-0 z-0">
           <img 
             src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=2000&auto=format&fit=crop" 
@@ -457,38 +415,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. SIKÇA SORULAN SORULAR (GEO & YAPAY ZEKA ODAKLI BÖLÜM) */}
-      <section id="sss" className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 bg-slate-100/70 border-t border-slate-200">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-10 sm:mb-14">
-            <span className="text-orange-600 font-bold text-xs tracking-widest uppercase">ULUSLARARASI TAŞIMACILIK REHBERİ</span>
-            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 mt-1">Sıkça Sorulan Sorular</h2>
-            <p className="text-xs sm:text-sm text-slate-600 mt-2">
-              Türkiye'den Avrupa ve İngiltere'ye taşımacılık, gümrük ve zati eşya süreçleri hakkında merak edilenler.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {faqs.map((faq, idx) => (
-              <details key={idx} className="group bg-white p-5 rounded-2xl border border-slate-200 shadow-sm [&_summary::-webkit-details-marker]:none">
-                <summary className="flex items-center justify-between cursor-pointer font-bold text-sm sm:text-base text-slate-900 group-open:text-orange-600 transition">
-                  <span>{faq.question}</span>
-                  <span className="ml-4 shrink-0 rounded-full bg-slate-100 p-1.5 text-slate-500 group-open:rotate-180 group-open:bg-orange-100 group-open:text-orange-600 transition">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </span>
-                </summary>
-                <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed pt-3 border-t border-slate-100">
-                  {faq.answer}
-                </p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 6. FOOTER */}
+      {/* 5. FOOTER */}
       <footer id="iletisim" className="bg-slate-900 text-white pt-12 pb-10 px-4 sm:px-6 lg:px-8 border-t border-slate-800">
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
           
