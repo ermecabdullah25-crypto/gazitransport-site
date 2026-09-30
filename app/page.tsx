@@ -160,7 +160,7 @@ export default function Home() {
           <div className="flex items-center justify-between h-16 sm:h-20">
             <Link href="/" className="flex flex-col group py-1 shrink-0">
               <div className="text-xl sm:text-2xl xl:text-3xl font-black tracking-tight leading-none text-slate-900">
-                GAZI<span className="text-orange-600">TRANSPORT</span>
+                GAZİ<span className="text-orange-600">TRANSPORT</span>
               </div>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="h-[2px] w-3 bg-orange-600 rounded-full"></span>
@@ -422,7 +422,7 @@ export default function Home() {
           <div className="space-y-3">
             <div className="flex flex-col">
               <span className="text-xl font-black uppercase tracking-tight text-white">
-                GAZI<span className="text-orange-500">TRANSPORT</span>
+                GAZİ<span className="text-orange-500">TRANSPORT</span>
               </span>
               <span className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase">
                 Uluslararası Lojistik
