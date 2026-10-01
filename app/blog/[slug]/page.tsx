@@ -1,9 +1,9 @@
-'use client';
-
 import React from 'react';
-import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import { Calendar, Clock, ChevronRight, User, Calculator, CheckCircle2, HelpCircle, Boxes } from 'lucide-react';
+import { BLOG_POSTS, BlogPost } from '../blogData';
 
 interface FAQItem {
   question: string;
@@ -21,10 +21,11 @@ interface BlogPostContent {
   faqs: FAQItem[];
 }
 
-const BLOG_CONTENTS: Record<string, BlogPostContent> = {
+// ÖZEL DETAY İÇERİKLERİ
+const SPECIAL_CONTENTS: Record<string, BlogPostContent> = {
   "turkiyeden-ingiltereye-zati-esya-tasima-rehberi": {
     title: "Türkiye'den İngiltere'ye Zati Eşya Taşıma Rehberi (TOR1 Gümrük Muafiyeti)",
-    category: "Zati Eşya",
+    category: "İngiltere Lojistik",
     date: "28 Eylül 2026",
     readTime: "7 dk okuma",
     image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200",
@@ -46,10 +47,10 @@ const BLOG_CONTENTS: Record<string, BlogPostContent> = {
       }
     ]
   },
-  "turkiyeden-almanyaya-ev-esyasi-tasimada-zoll-gumruk-sürecleri": {
+  "turkiyeden-almanyaya-ev-esyasi-tasimada-zoll-gumruk-surecleri": {
     title: "Türkiye'den Almanya'ya Ev Eşyası Taşımada Zoll Gümrük Prosedürleri",
-    category: "Gümrük & Zati Eşya",
-    date: "25 Eylül 2026",
+    category: "Almanya Lojistik",
+    date: "28 Eylül 2026",
     readTime: "7 dk okuma",
     image: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=1200",
     summary: "Almanya gümrük idaresi (Zoll), Türkiye'den Almanya'ya nakledilen ev eşyalarında ikametgah değişimi (Übersiedlungsgut) şartları sağlandığında gümrük vergisi muafiyeti tanır.",
@@ -64,70 +65,34 @@ const BLOG_CONTENTS: Record<string, BlogPostContent> = {
         answer: "Almanya ikamet belgesi (Anmeldung), iş/kira sözleşmesi, pasaport fotokopisi, Formular 0350 ve GaziTransport onaylı Türkçe-Almanca eşya listesi gereklidir."
       }
     ]
-  },
-  "turk-gida-urunlerinin-avrupaya-frigo-lojistigi": {
-    title: "Türk Gıda Ürünlerinin Avrupa'ya Frigo Lojistiği ve Sağlık Sertifikaları",
-    category: "Gıda Lojistiği",
-    date: "24 Ağustos 2026",
-    readTime: "6 dk okuma",
-    image: "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?q=80&w=1200",
-    summary: "Sıcaklık kontrollü (Frigo) tırlarla Türk gıda ürünlerinin AB gümrük mevzuatına ve sağlık sertifikası (Health Certificate) standartlarına uygun nakliye rehberi.",
-    paragraphs: [
-      "Kuru gıda, dondurulmuş gıda, tatlı ve taze ikramlıkların Avrupa pazarına sevk edilmesi iklimlendirmeli soğutuculu frigo araçlar ile mümkündür.",
-      "AB gümrük kapılarında gıda ürünleri için Bitki Sağlık Sertifikası (Phytosanitary) veya Gıda Analiz Raporları talep edilir.",
-      "GaziTransport rekor sürede dereceli soğutuculu dorseleri ile gıda ürünlerinizin bozulmadan AB marketlerine ve toptancılarına ulaşmasını sağlar."
-    ],
-    faqs: [
-      {
-        question: "Gıda kargolarında gümrük takılmaları nasıl önlenir?",
-        answer: "İhracatçı firmanın AB gıda tüzüğüne uygun etiketleme ve içerik analiz belgelerini yükleme öncesinde GaziTransport gümrük ekibine onaylatması gerekir."
-      }
-    ]
-  },
-  "inegol-mobilyalarinin-avrupaya-guvenli-nakliyesi": {
-    title: "İnegöl Mobilyalarının Avrupa'ya Hasarsız Nakliyesi ve Ambalajlama",
-    category: "Mobilya Taşımacılığı",
-    date: "02 Eylül 2026",
-    readTime: "5 dk okuma",
-    image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1200",
-    summary: "İnegöl, Kayseri ve İstanbul'dan satın alınan Türk mobilyalarının Avrupa'daki adrese kırılmadan ve çizilmeden ulaştırılması özel koruyucu paketleme teknikleri gerektirir.",
-    paragraphs: [
-      "Türk mobilyaları yüksek kalitesi ve estetik tasarımlarıyla Avrupa'daki gurbetçilerimiz ve Avrupalı tüketiciler tarafından yoğun ilgi görmektedir.",
-      "Hassas ahşap yüzeyler, kumaş döşemeler ve camlı vitrinler uluslararası nakliyede sürtünme ve sarsıntıya maruz kalır. GaziTransport, 5 katmanlı patpat ambalaj, köşe koruyucu kartonlar ve streç filmleme ile maksimum koruma sağlar.",
-      "İnegöl mobilya üreticilerinden doğrudan fabrika çıkışlı alım yapıp Fransa, Belçika, Hollanda ve Almanya'daki evinizin salonuna kadar kurulum dâhil teslim ediyoruz."
-    ],
-    faqs: [
-      {
-        question: "Mobilya üreticisinden doğrudan eşyayı teslim alıyor musunuz?",
-        answer: "Evet. İnegöl, Kayseri veya Türkiye'nin herhangi bir yerindeki mobilya mağazasından veya fabrikasından ürünlerinizi sizin adınıza teslim alıp depoluyoruz."
-      }
-    ]
   }
 };
 
-// VARSAYILAN JENERİK ŞABLON (Tüm diğer 40+ slug için dinamik üretilir)
-const createFallbackContent = (slug: string): BlogPostContent => {
-  const formattedTitle = slug
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+// 150 MAKALE İÇİN DİNAMİK İÇERİK ÜRETİCİ
+function getPostContent(slug: string): BlogPostContent | null {
+  const meta = BLOG_POSTS.find(p => p.slug === slug);
+  if (!meta) return null;
+
+  if (SPECIAL_CONTENTS[slug]) {
+    return SPECIAL_CONTENTS[slug];
+  }
 
   return {
-    title: formattedTitle,
-    category: "Uluslararası Lojistik",
-    date: "Güncel Lojistik Rehberi",
-    readTime: "5 dk okuma",
-    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200",
-    summary: `${formattedTitle} alanında GaziTransport güvencesiyle sunduğumuz kapıdan kapıya uluslararası nakliye, gümrükleme, sigorta ve lojistik çözümleri.`,
+    title: meta.title,
+    category: meta.category,
+    date: meta.date,
+    readTime: meta.readTime,
+    image: meta.image,
+    summary: meta.excerpt,
     paragraphs: [
-      `${formattedTitle} sürecinde doğru lojistik ortağıyla çalışmak, gümrük gecikmelerinin ve beklenmeyen maliyetlerin önüne geçer. GaziTransport, Türkiye'den Avrupa ve Birleşik Krallık'a kadar olan tüm rotalarda eksiksiz hizmet sunar.`,
-      "Uluslararası standartlara uygun ambalajlama, CMR taşıyıcı sigortası, öz mal filo ve deneyimli gümrük operasyon ekibimiz sayesinde yükünüz güvenle hedef adrese ulaştırılır.",
-      "Online hacim hesaplama araçlarımız ve anlık WhatsApp destek hattımız üzerinden gönderinizin detaylarını ileterek en uygun navlun teklifini derhal alabilirsiniz."
+      `${meta.title} sürecinde doğru lojistik ortağıyla çalışmak, gümrük gecikmelerinin ve beklenmeyen maliyetlerin önüne geçer. GaziTransport, Türkiye'den Avrupa ve Birleşik Krallık'a kadar olan tüm rotalarda eksiksiz kapıdan kapıya hizmet sunar.`,
+      `İlgili rotada (${meta.category}) gümrük mevzuatlarına tam uyum, 5 katmanlı darbe emici ambalajlama, CMR taşıyıcı sigortası ve öz mal filomuz ile eşyalarınız güvence altındadır.`,
+      "Online hacim hesaplama araçlarımız ve anlık destek hattımız üzerinden gönderinizin detaylarını ileterek en uygun navlun teklifini derhal alabilirsiniz."
     ],
     faqs: [
       {
-        question: `${formattedTitle} için teslimat süresi ne kadardır?`,
-        answer: "Çıkış yapılan ülkeye ve taşıma moduna (Express, Karayolu, Frigo veya Multimodal) bağlı olarak teslimat süresi ortalama 3 ile 8 iş günü arasında değişmektedir."
+        question: `${meta.title} için teslimat süresi ne kadardır?`,
+        answer: "Çıkış yapılan ülkeye ve taşıma moduna (Express Minivan, Karayolu Tır, Frigo veya Multimodal) bağlı olarak teslimat süresi ortalama 3 ile 8 iş günü arasında değişmektedir."
       },
       {
         question: "Gümrükleme işlemleri GaziTransport tarafından mı yapılıyor?",
@@ -135,12 +100,43 @@ const createFallbackContent = (slug: string): BlogPostContent => {
       }
     ]
   };
-};
+}
 
-export default function BlogDetailPage() {
-  const params = useParams();
-  const slug = params?.slug as string;
-  const post = BLOG_CONTENTS[slug] || createFallbackContent(slug || 'turkiyeden-ingiltereye-zati-esya-tasima-rehberi');
+// 1) STATIC SITE GENERATION (150 SAYFAYI DERLEMEDE OLUŞTURUR)
+export async function generateStaticParams() {
+  return BLOG_POSTS.map((post) => ({
+    slug: post.slug,
+  }));
+}
+
+// 2) OTOMATİK SEO & METADATA YÖNETİMİ
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const post = getPostContent(params.slug);
+  if (!post) return {};
+
+  return {
+    title: `${post.title} | GaziTransport Lojistik`,
+    description: post.summary,
+    openGraph: {
+      title: post.title,
+      description: post.summary,
+      images: [post.image],
+      type: 'article',
+      url: `https://gazitransport.com/blog/${params.slug}`,
+    },
+    alternates: {
+      canonical: `https://gazitransport.com/blog/${params.slug}`,
+    },
+  };
+}
+
+// 3) ANA SAYFA BÖLÜMÜ (SERVER COMPONENT)
+export default function BlogDetailPage({ params }: { params: { slug: string } }) {
+  const post = getPostContent(params.slug);
+
+  if (!post) {
+    notFound();
+  }
 
   const blogPostingSchema = {
     "@context": "https://schema.org",
@@ -164,7 +160,7 @@ export default function BlogDetailPage() {
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://gazitransport.com/blog/${slug}`
+      "@id": `https://gazitransport.com/blog/${params.slug}`
     }
   };
 
@@ -276,7 +272,7 @@ export default function BlogDetailPage() {
             <span className="text-orange-400 font-bold text-xs uppercase tracking-widest block mb-1">GAZITRANSPORT LOJİSTİK</span>
             <h3 className="text-lg sm:text-xl font-bold mb-1">Navlun ve Gönderinizi Anında Hesaplayın</h3>
             <p className="text-xs text-slate-400 max-w-md">
-              Avrupa ve İngiltere hatlarında zati eşya veya ticari kargo navlun fiyati için online hesaplayıcıyı kullanın.
+              Avrupa ve İngiltere hatlarında zati eşya veya ticari kargo navlun fiyatı için online hesaplayıcıyı kullanın.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto shrink-0">
