@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { Calendar, Clock, ChevronRight, User, Calculator, CheckCircle2, HelpCircle, Boxes } from 'lucide-react';
-import { BLOG_POSTS, BlogPost } from '../blogData';
+import { BLOG_POSTS } from '../blogData';
 
 interface FAQItem {
   question: string;
@@ -109,9 +109,14 @@ export async function generateStaticParams() {
   }));
 }
 
-// 2) OTOMATİK SEO & METADATA YÖNETİMİ
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const post = getPostContent(params.slug);
+// 2) OTOMATİK SEO & METADATA YÖNETİMİ (Async Params Uyumluluğu)
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: Promise<{ slug: string }> 
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const post = getPostContent(slug);
   if (!post) return {};
 
   return {
@@ -122,17 +127,22 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       description: post.summary,
       images: [post.image],
       type: 'article',
-      url: `https://gazitransport.com/blog/${params.slug}`,
+      url: `https://gazitransport.com/blog/${slug}`,
     },
     alternates: {
-      canonical: `https://gazitransport.com/blog/${params.slug}`,
+      canonical: `https://gazitransport.com/blog/${slug}`,
     },
   };
 }
 
-// 3) ANA SAYFA BÖLÜMÜ (SERVER COMPONENT)
-export default function BlogDetailPage({ params }: { params: { slug: string } }) {
-  const post = getPostContent(params.slug);
+// 3) ANA SAYFA COMPONENTI (Async Params Uyumluluğu)
+export default async function BlogDetailPage({ 
+  params 
+}: { 
+  params: Promise<{ slug: string }> 
+}) {
+  const { slug } = await params;
+  const post = getPostContent(slug);
 
   if (!post) {
     notFound();
@@ -160,7 +170,7 @@ export default function BlogDetailPage({ params }: { params: { slug: string } })
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://gazitransport.com/blog/${params.slug}`
+      "@id": `https://gazitransport.com/blog/${slug}`
     }
   };
 
