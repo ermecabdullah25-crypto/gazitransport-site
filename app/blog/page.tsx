@@ -1,29 +1,36 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Sparkles, Search, Calendar, Clock, ArrowRight } from 'lucide-react';
+import { Sparkles, Search, Calendar, Clock, ArrowRight, Globe, Truck, ShieldCheck } from 'lucide-react';
 import { BLOG_POSTS } from './blogData';
 
 export default function BlogListPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Tümü');
 
-  const categories = ['Tümü', ...Array.from(new Set(BLOG_POSTS.map(p => p.category)))];
+  const categories = useMemo(() => {
+    return ['Tümü', ...Array.from(new Set(BLOG_POSTS.map(p => p.category)))];
+  }, []);
 
-  const filteredPosts = BLOG_POSTS.filter(post => {
-    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          post.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'Tümü' || post.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredPosts = useMemo(() => {
+    return BLOG_POSTS.filter(post => {
+      const query = searchTerm.toLowerCase();
+      const matchesSearch = 
+        post.title.toLowerCase().includes(query) || 
+        post.excerpt.toLowerCase().includes(query) ||
+        (post.serviceType && post.serviceType.toLowerCase().includes(query));
+      const matchesCategory = selectedCategory === 'Tümü' || post.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [searchTerm, selectedCategory]);
 
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": "GaziTransport Almanya, İngiltere, Hollanda, Fransa Uluslararası Lojistik Rehberi",
-    "description": "Türkiye'den Almanya, İngiltere, Hollanda ve Fransa'ya ev eşyası, zati eşya, gıda frigo ve gümrük rehberleri.",
-    "itemListElement": filteredPosts.slice(0, 30).map((post, index) => ({
+    "name": "GaziTransport Avrupa ve Küresel Lojistik & Gümrük Kütüphanesi",
+    "description": "Almanya (Zoll), İngiltere (TOR1), Hollanda (Douane), Fransa (Cerfa), İsviçre, İtalya, İspanya ve tüm kıtalara yönelik lojistik ve gümrük rehberi.",
+    "itemListElement": filteredPosts.slice(0, 50).map((post, index) => ({
       "@type": "ListItem",
       "position": index + 1,
       "url": `https://gazitransport.com/blog/${post.slug}`,
@@ -44,13 +51,13 @@ export default function BlogListPage() {
         <div className="max-w-7xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 bg-orange-500/10 border border-orange-500/30 rounded-full px-4 py-1.5 text-xs text-orange-400 font-bold mb-4">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>150 Odaklanmış Avrupa & UK Lojistik ve Gümrük Rehberi</span>
+            <span>Avrupa & Küresel Lojistik, Gümrükleşme ve Incoterms Rehberi</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight mb-4 text-white">
-            GaziTransport <span className="text-orange-500">Avrupa Lojistik Kütüphanesi</span>
+            GaziTransport <span className="text-orange-500">Gümrük & Lojistik Kütüphanesi</span>
           </h1>
           <p className="text-slate-300 max-w-3xl mx-auto text-sm sm:text-base leading-relaxed">
-            Almanya (Zoll 0350), İngiltere (TOR1), Hollanda (Douane) ve Fransa (Cerfa) gümrük muafiyetleri, zati eşya, mobilya ve frigo lojistik rehberleri.
+            Almanya (Formular 0350), İngiltere (TOR1), Hollanda (Douane), Fransa (Cerfa 10070), İsviçre (Form 18.44) ve tüm kıtalara yönelik Zati Eşya, Frigo, Express ve Multimodal nakliye rehberleri.
           </p>
 
           {/* ARAMA ÇUBUĞU */}
@@ -59,10 +66,10 @@ export default function BlogListPage() {
               <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
               <input 
                 type="text" 
-                placeholder="Şehir veya konu ara (Örn: Berlin, Londra, TOR1, Paris, Rotterdam)..."
+                placeholder="Şehir, ülke veya mevzuat ara (Örn: TOR1, Zoll 0350, Berlin, Londra, Paris, Frigo, Multimodal)..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-800 text-white rounded-xl pl-12 pr-4 py-3 text-xs sm:text-sm focus:outline-none focus:border-orange-500 transition placeholder:text-slate-500"
+                className="w-full bg-slate-900 border border-slate-800 text-white rounded-xl pl-12 pr-4 py-3.5 text-xs sm:text-sm focus:outline-none focus:border-orange-500 transition placeholder:text-slate-500 shadow-inner"
               />
             </div>
           </div>
@@ -88,12 +95,17 @@ export default function BlogListPage() {
         </div>
       </section>
 
-      {/* BLOG LIST GRID */}
+      {/* GRID VE REHBER CARDI */}
       <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
           <p className="text-xs sm:text-sm font-semibold text-slate-500">
-            Toplam <span className="text-orange-600 font-bold">{filteredPosts.length}</span> rehber listeleniyor
+            Toplam <span className="text-orange-600 font-bold">{filteredPosts.length}</span> uzmanlık rehberi listeleniyor
           </p>
+          <div className="hidden sm:flex items-center gap-4 text-xs font-medium text-slate-500">
+            <span className="flex items-center gap-1"><Globe className="w-3.5 h-3.5 text-orange-500" /> Tüm Avrupa & Dünya</span>
+            <span className="flex items-center gap-1"><Truck className="w-3.5 h-3.5 text-orange-500" /> Öz Mal Filo</span>
+            <span className="flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5 text-orange-500" /> CMR Sigortalı</span>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -107,9 +119,16 @@ export default function BlogListPage() {
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                     loading="lazy"
                   />
-                  <span className="absolute top-4 left-4 bg-orange-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
-                    {post.category}
-                  </span>
+                  <div className="absolute top-4 left-4 flex gap-1.5 flex-wrap">
+                    <span className="bg-orange-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+                      {post.category}
+                    </span>
+                    {post.serviceType && (
+                      <span className="bg-slate-900/90 backdrop-blur-md text-orange-400 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-orange-500/30">
+                        {post.serviceType}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="p-6">
                   <div className="flex items-center gap-4 text-xs text-slate-400 mb-3">
@@ -119,7 +138,7 @@ export default function BlogListPage() {
                   <h2 className="font-bold text-slate-900 text-base sm:text-lg mb-3 group-hover:text-orange-600 transition leading-snug">
                     {post.title}
                   </h2>
-                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-4">
+                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-4 line-clamp-3">
                     {post.excerpt}
                   </p>
                 </div>
@@ -130,7 +149,7 @@ export default function BlogListPage() {
                   href={`/blog/${post.slug}`}
                   className="inline-flex items-center gap-2 text-orange-600 font-bold text-xs sm:text-sm hover:text-orange-700 transition"
                 >
-                  <span>Rehberi Oku</span>
+                  <span>Rehberi Incele</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />
                 </Link>
               </div>

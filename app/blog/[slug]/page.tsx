@@ -2,12 +2,22 @@ import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { Calendar, Clock, ChevronRight, User, Calculator, CheckCircle2, HelpCircle, Boxes } from 'lucide-react';
+import { 
+  Calendar, Clock, ChevronRight, User, Calculator, 
+  CheckCircle2, HelpCircle, Boxes, FileText, PackageCheck, 
+  ShieldAlert, Landmark, Truck
+} from 'lucide-react';
 import { BLOG_POSTS } from '../blogData';
 
 interface FAQItem {
   question: string;
   answer: string;
+}
+
+interface CustomProcessStep {
+  step: string;
+  title: string;
+  desc: string;
 }
 
 interface BlogPostContent {
@@ -17,65 +27,93 @@ interface BlogPostContent {
   readTime: string;
   image: string;
   summary: string;
+  customsAuthority: string;
+  requiredDocs: string[];
+  processSteps: CustomProcessStep[];
   paragraphs: string[];
   faqs: FAQItem[];
 }
 
-// ÖZEL DETAY İÇERİKLERİ
-const SPECIAL_CONTENTS: Record<string, BlogPostContent> = {
-  "turkiyeden-ingiltereye-zati-esya-tasima-rehberi": {
-    title: "Türkiye'den İngiltere'ye Zati Eşya Taşıma Rehberi (TOR1 Gümrük Muafiyeti)",
-    category: "İngiltere Lojistik",
-    date: "28 Eylül 2026",
-    readTime: "7 dk okuma",
-    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200",
-    summary: "Türkiye'den Birleşik Krallık'a (İngiltere, İskoçya, Galler) ev eşyası taşırken gümrük vergilerinden (%20 VAT ve gümrük vergisi) muaf olmak için TOR1 (Transfer of Residence) onayı alınmalıdır.",
-    paragraphs: [
-      "İngiltere'ye yerleşmek veya uzun süreli çalışma/eğitim vizesi ile taşınmak heyecan verici bir adımdır. Ancak ev eşyalarının Türkiye'den Birleşik Krallık adresinize nakliyesi kapsamlı bir gümrük ve ambalaj hazırlığı gerektirir.",
-      "İngiltere Gümrük ve Vergi Dairesi (HMRC), Birleşik Krallık'a yerleşen kişilerin en az 6 aydır kullandığı kişisel ve ev eşyaları için TOR1 (Transfer of Residence) muafiyeti uygular. Bu onay alındığında eşyalarınız İngiltere gümrüğünde vergisiz (0% VAT) çekilir.",
-      "GaziTransport olarak, kapıdan kapıya taşımacılık sürecinde envanter listesinin (Packing List) HMRC formatına uygun hazırlanması, 5 katmanlı darbe emici baloncuklu ambalajlama ve Türkiye çıkış gümrük işlemlerini tek elden yönetiyoruz.",
-      "Tırımız Türkiye'den yola çıktıktan sonra Ro-Ro ve karayolu güzergahıyla İngiltere'ye ulaşır. Varış adresinizde eşyalarınız montaj ve ambalaj atıklarının toplanması dahil teslim edilir."
-    ],
-    faqs: [
-      {
-        question: "İngiltere zati eşya taşımasında TOR1 başvurusu ne zaman yapılmalıdır?",
-        answer: "TOR1 başvurusu eşyalarınız Türkiye'den yola çıkmadan en az 2-3 hafta önce HMRC resmi portalı üzerinden yapılmalıdır. GaziTransport başvuru evrak listenizi ücretsiz kontrol eder."
-      },
-      {
-        question: "Sıfır alınmış yeni mobilyalar TOR1 muafiyetine girer mi?",
-        answer: "Hayır. TOR1 muafiyeti en az 6 aydır kullanılan kişisel eşyalar içindir. Sıfır ürünler için İngiltere gümrüğünde fatura değeri üzerinden KDV ve gümrük vergisi doğar."
-      }
-    ]
-  },
-  "turkiyeden-almanyaya-ev-esyasi-tasimada-zoll-gumruk-surecleri": {
-    title: "Türkiye'den Almanya'ya Ev Eşyası Taşımada Zoll Gümrük Prosedürleri",
-    category: "Almanya Lojistik",
-    date: "28 Eylül 2026",
-    readTime: "7 dk okuma",
-    image: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=1200",
-    summary: "Almanya gümrük idaresi (Zoll), Türkiye'den Almanya'ya nakledilen ev eşyalarında ikametgah değişimi (Übersiedlungsgut) şartları sağlandığında gümrük vergisi muafiyeti tanır.",
-    paragraphs: [
-      "Almanya, Türk vatandaşlarının ve gurbetçilerin en yoğun eşya nakliyesi yaptığı Avrupa ülkesidir. Ancak Almanya Gümrük Dairesi (Zoll), AB dışından gelen eşyalar için sıkı denetimler uygular.",
-      "Almanya'da eşyalarınızı vergisiz gümrüklemek için 'Formular 0350' (Anmeldung von Übersiedlungsgut) doldurulmalı, Almanya oturum belgesi (Anmeldung) ve Türkiye'den çıkış/nakil belgeleri ibraz edilmelidir.",
-      "GaziTransport, Berlin, Münih, Frankfurt, Stuttgart ve Köln dâhil Almanya'nın tüm eyaletlerine haftalık düzenli zati eşya tırları kaldırmaktadır. Eşyalarınız profesyonel ekiplerimizce marangozlu söküm-takım hizmetiyle taşınır."
-    ],
-    faqs: [
-      {
-        question: "Almanya gümrüğünde zati eşya için hangi belgeler gereklidir?",
-        answer: "Almanya ikamet belgesi (Anmeldung), iş/kira sözleşmesi, pasaport fotokopisi, Formular 0350 ve GaziTransport onaylı Türkçe-Almanca eşya listesi gereklidir."
-      }
-    ]
-  }
-};
-
-// 150 MAKALE İÇİN DİNAMİK İÇERİK ÜRETİCİ
-function getPostContent(slug: string): BlogPostContent | null {
+// ÖZEL VEYA BÖLGESEL DİNAMİK MİMARİ MOTORU
+function generateDynamicExpertContent(slug: string): BlogPostContent | null {
   const meta = BLOG_POSTS.find(p => p.slug === slug);
   if (!meta) return null;
 
-  if (SPECIAL_CONTENTS[slug]) {
-    return SPECIAL_CONTENTS[slug];
+  const isUK = slug.includes('ingiltere') || meta.category.includes('İngiltere');
+  const isDE = slug.includes('almanya') || meta.category.includes('Almanya');
+  const isNL = slug.includes('hollanda') || meta.category.includes('Hollanda');
+  const isFR = slug.includes('fransa') || meta.category.includes('Fransa');
+  const isCH = slug.includes('isvicre') || meta.category.includes('İsviçre');
+
+  let customsAuthority = "İlgili Ülke Gümrük İdaresi & AB Gümrük Birliği Versiyonu";
+  let requiredDocs = [
+    "Detaylı Eşya Liste / Çeki Listesi (Packing List - Koli/Hacim Bazlı)",
+    "Pasaport ve Geçerli Oturum Belgesi / Çalışma Vizesi Fotokopisi",
+    "Türkiye Çıkış İkametgah Nakil Belgesi veya Yurtdışı Görev Yazısı",
+    "CMR Uluslararası Taşıma Senedi ve Taşıyıcı Yetki Belgesi"
+  ];
+
+  if (isUK) {
+    customsAuthority = "HM Revenue & Customs (HMRC) - Birleşik Krallık Gümrük Dairesi";
+    requiredDocs = [
+      "HMRC Onaylı Unique Reference Number (TOR1 Muafiyet Kodu)",
+      "İngiltere Kira Sözleşmesi veya Ev Tapu Örneği",
+      "Detaylı İngilizce Packing List (Kutu Numaralı ve Değer Beyanlı)",
+      "Birlik Dışı Giriş Beyannamesi & Uluslararası CMR Belgesi"
+    ];
+  } else if (isDE) {
+    customsAuthority = "Bundeszollverwaltung (Almanya Federal Gümrük Dairesi)";
+    requiredDocs = [
+      "Zoll Formular 0350 (Anmeldung von Übersiedlungsgut)",
+      "Almanya Şehir Kayıt Belgesi (Anmeldung / Meldebestätigung)",
+      "Almanca/Türkçe Hazırlanmış İmzalı Eşya Listesi",
+      "İş Sözleşmesi veya Üniversite Kabul Belgesi Örneği"
+    ];
+  } else if (isNL) {
+    customsAuthority = "Douane Nederland (Hollanda Gümrük İdaresi)";
+    requiredDocs = [
+      "Aangifte voor Vrijstelling van Invoerrechten (Muafiyet Beyannamesi)",
+      "Hollanda Belediye İkamet Kaydı (BRP Entegrasyonu)",
+      "Detaylı Kargo Çeki Listesi ve CMR Taşıma Belgesi"
+    ];
+  } else if (isFR) {
+    customsAuthority = "Direction Générale des Douanes et Droits Indirects (Fransa Gümrüğü)";
+    requiredDocs = [
+      "Cerfa Form No: 10070*03 Vergisiz İthalat Beyannamesi",
+      "Fransa İkametgah Belgesi (Attestation d'hébergement / Bail)",
+      "Fransızca Hazırlanmış Konsolosluk Tasdikli Eşya Listesi"
+    ];
+  } else if (isCH) {
+    customsAuthority = "BAZG (İsviçre Federal Gümrük ve Sınır Güvenliği Dairesi)";
+    requiredDocs = [
+      "Formular 18.44 (Muster 18.44 Übersiedlungsgut)",
+      "İsviçre Çalışma / Oturum İzni (Ausländerausweis B/L)",
+      "İsviçre Kira Kontratı ve İki Dilli Detaylı Envanter Listesi"
+    ];
   }
+
+  const processSteps: CustomProcessStep[] = [
+    {
+      step: "01",
+      title: "Eşya Ekspertizi ve Hacim (m³) Hesaplama",
+      desc: "Uzman ekibimizce eşyalarınızın m³ hacmi, hassas kırılacak ürünler ve demonte edilecek mobilyalar yerinde/dijital tespit edilir."
+    },
+    {
+      step: "02",
+      title: "5 Katmanlı Ambalajlama & Marangozlu Söküm",
+      desc: "Mobilyalarınız sökülür, hava balonlu kraft kağıtlar, baloncuklu naylonlar ve köşe koruyucular ile uluslararası standartta paketlenir."
+    },
+    {
+      step: "03",
+      title: "Gümrük Evrak Hazırlığı & Beyanname Açılışı",
+      desc: `${customsAuthority} mevzuatına uygun olarak eşya listeniz, muafiyet formlarınız ve CMR evraklarınız eksiksiz hazırlanır.`
+    },
+    {
+      step: "04",
+      title: "Güvenli Sevkiyat & Kapıda Kurulum Teslimatı",
+      desc: "Eşyalarınız varış ülkesinde gümrükten çekilerek yeni adresinizde odalarına kadar taşınır, montajı yapılır ve ambalaj atıkları toplanır."
+    }
+  ];
 
   return {
     title: meta.title,
@@ -84,50 +122,72 @@ function getPostContent(slug: string): BlogPostContent | null {
     readTime: meta.readTime,
     image: meta.image,
     summary: meta.excerpt,
+    customsAuthority,
+    requiredDocs,
+    processSteps,
     paragraphs: [
-      `${meta.title} sürecinde doğru lojistik ortağıyla çalışmak, gümrük gecikmelerinin ve beklenmeyen maliyetlerin önüne geçer. GaziTransport, Türkiye'den Avrupa ve Birleşik Krallık'a kadar olan tüm rotalarda eksiksiz kapıdan kapıya hizmet sunar.`,
-      `İlgili rotada (${meta.category}) gümrük mevzuatlarına tam uyum, 5 katmanlı darbe emici ambalajlama, CMR taşıyıcı sigortası ve öz mal filomuz ile eşyalarınız güvence altındadır.`,
-      "Online hacim hesaplama araçlarımız ve anlık destek hattımız üzerinden gönderinizin detaylarını ileterek en uygun navlun teklifini derhal alabilirsiniz."
+      `${meta.title} kapsamında gerçekleştirilecek lojistik operasyonlar, uluslararası taşımacılık hukuku ve varış ülkesi gümrük mevzuatlarına tam uyum gerektirir. Gazi Transport, Türkiye'den başlayan kapıdan kapıya süreçte tüm prosedürleri profesyonel kadrosu ile yönetmektedir.`,
+      `Taşıma sürecinde eşyalarınızın güvenliği için ISO 9001 standartlarında 5 katmanlı darbe emici ambalaj malzemeleri kullanılır. Beyaz eşyalar, kırılacak hassas cam ve porselenler özel kolilenirken, gardırop ve yatak odası takımları marangozlarımız tarafından sökülüp varış adresinde tekrar monte edilir.`,
+      `Gümrükleme tarafında ise ${customsAuthority} kuralları uyarınca muafiyet haklarının doğru kullanılması hayati önem taşır. Yanlış veya eksik yapılan beyanlar gümrükte tırın beklemesine (demoraj) ve ek vergi cezalarına sebep olabilir. Gazi Transport gümrük müşavirliği departmanı tüm bu riski sıfıra indirir.`,
+      `Sevkiyatlarımız uluslararası CMR (Carriage of Goods by Road) Taşıyıcı Sorumluluk Sigortası ve opsiyonel All-Risk Emtia Sigortası ile %100 güvence altındadır. Aracımız yola çıktığı andan itibaren GPS araç takip sistemi üzerinden anlık konum takibi sağlanır.`
     ],
     faqs: [
       {
-        question: `${meta.title} için teslimat süresi ne kadardır?`,
-        answer: "Çıkış yapılan ülkeye ve taşıma moduna (Express Minivan, Karayolu Tır, Frigo veya Multimodal) bağlı olarak teslimat süresi ortalama 3 ile 8 iş günü arasında değişmektedir."
+        question: `${meta.title} operasyonu ortalama kaç gün sürmektedir?`,
+        answer: "Güzergaha ve tercih edilen taşıma moduna bağlı olarak (Express Minivan ile 3-4 gün, Karayolu Tır ile 7-12 gün) teslimat tamamlanmaktadır."
       },
       {
-        question: "Gümrükleme işlemleri GaziTransport tarafından mı yapılıyor?",
-        answer: "Evet, hem Türkiye çıkış gümrüğü hem de varış ülkesi ithalat/zati eşya gümrükleme beyannameleri uzman kadromuzca yönetilmektedir."
+        question: "Gümrük vergisi ödemeden ev eşyalarımı nasıl taşıtabilirim?",
+        answer: `${customsAuthority} kurallarına göre son 12 aydır yurtdışında yaşadığınızı ve eşyalarınızın en az 6 aylık kullanılmış eşya olduğunu belgelediğiniz takdirde gümrük vergisinden (%0 VAT/KDV) muaf olursunuz.`
+      },
+      {
+        question: "Eşyalarım nakliye sırasında sigortalı mıdır?",
+        answer: "Evet, tüm taşıma operasyonlarımız uluslararası CMR Taşıyıcı Sorumluluk Sigortası kapsamındadır. Ayrıca talebiniz üzerine kasko değerinde All-Risk Geniş Kapsamlı Sigorta da düzenlenmektedir."
       }
     ]
   };
 }
 
-// 1) STATIC SITE GENERATION (150 SAYFAYI DERLEMEDE OLUŞTURUR)
 export async function generateStaticParams() {
   return BLOG_POSTS.map((post) => ({
     slug: post.slug,
   }));
 }
 
-// 2) OTOMATİK SEO & METADATA YÖNETİMİ (Async Params Uyumluluğu)
 export async function generateMetadata({ 
   params 
 }: { 
   params: Promise<{ slug: string }> 
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPostContent(slug);
+  const post = generateDynamicExpertContent(slug);
   if (!post) return {};
 
   return {
-    title: `${post.title} | GaziTransport Lojistik`,
+    title: `${post.title} | Gazi Transport Lojistik Rehberi`,
     description: post.summary,
+    keywords: [
+      post.category,
+      'Gazi Transport',
+      'uluslararası nakliyat',
+      'gümrükleme',
+      'ev taşıma',
+      'lojistik çözümleri'
+    ],
     openGraph: {
+      title: `${post.title} | Gazi Transport`,
+      description: post.summary,
+      images: [{ url: post.image, alt: post.title }],
+      type: 'article',
+      siteName: 'Gazi Transport',
+      locale: 'tr_TR',
+      url: `https://gazitransport.com/blog/${slug}`,
+    },
+    twitter: {
+      card: 'summary_large_image',
       title: post.title,
       description: post.summary,
       images: [post.image],
-      type: 'article',
-      url: `https://gazitransport.com/blog/${slug}`,
     },
     alternates: {
       canonical: `https://gazitransport.com/blog/${slug}`,
@@ -135,14 +195,13 @@ export async function generateMetadata({
   };
 }
 
-// 3) ANA SAYFA COMPONENTI (Async Params Uyumluluğu)
 export default async function BlogDetailPage({ 
   params 
 }: { 
   params: Promise<{ slug: string }> 
 }) {
   const { slug } = await params;
-  const post = getPostContent(slug);
+  const post = generateDynamicExpertContent(slug);
 
   if (!post) {
     notFound();
@@ -153,16 +212,19 @@ export default async function BlogDetailPage({
     "@type": "BlogPosting",
     "headline": post.title,
     "description": post.summary,
-    "image": post.image,
-    "datePublished": "2026-09-30",
+    "image": [post.image],
+    "datePublished": "2026-10-05",
+    "dateModified": "2026-10-05",
+    "inLanguage": "tr-TR",
     "author": {
       "@type": "Organization",
-      "name": "GaziTransport Lojistik Ekibi",
+      "name": "Gazi Transport Lojistik Uzman Ekibi",
       "url": "https://gazitransport.com"
     },
     "publisher": {
       "@type": "Organization",
-      "name": "GaziTransport",
+      "name": "Gazi Transport Lojistik A.Ş.",
+      "url": "https://gazitransport.com",
       "logo": {
         "@type": "ImageObject",
         "url": "https://gazitransport.com/favicon.ico"
@@ -200,12 +262,12 @@ export default async function BlogDetailPage({
         />
       )}
 
-      {/* BREADCRUMB */}
+      {/* BREADCRUMB NAVİGASYON */}
       <nav aria-label="Breadcrumb" className="bg-slate-950 text-slate-400 py-3.5 border-b border-slate-800 text-xs">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 flex items-center gap-2 overflow-x-auto whitespace-nowrap">
           <Link href="/" className="hover:text-white transition">Ana Sayfa</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-600 shrink-0" />
-          <Link href="/blog" className="hover:text-white transition">Blog</Link>
+          <Link href="/blog" className="hover:text-white transition">Gümrük & Lojistik Kütüphanesi</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-600 shrink-0" />
           <span className="text-orange-400 font-medium truncate">{post.title}</span>
         </div>
@@ -226,14 +288,14 @@ export default async function BlogDetailPage({
         <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-slate-500 pb-6 border-b border-slate-200 mb-8 font-medium">
           <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-orange-600" /> {post.date}</span>
           <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-orange-600" /> {post.readTime}</span>
-          <span className="flex items-center gap-1.5"><User className="w-4 h-4 text-orange-600" /> GaziTransport Uzman Kadrosu</span>
+          <span className="flex items-center gap-1.5"><User className="w-4 h-4 text-orange-600" /> Gazi Transport Gümrükleşme ve Mevzuat Ekibi</span>
         </div>
 
-        {/* HIZLI YANIT / ÖZET (GEO ODAKLI YAPAY ZEKA BLOĞU) */}
-        <div className="bg-orange-50/80 border-l-4 border-orange-600 p-5 rounded-r-2xl mb-8 shadow-sm">
-          <div className="flex items-center gap-2 text-orange-900 font-bold text-xs uppercase tracking-wider mb-1.5">
+        {/* GEO & YAPAY ZEKA HIZLI ÖZETI */}
+        <div className="bg-orange-50/90 border-l-4 border-orange-600 p-5 rounded-r-2xl mb-8 shadow-sm">
+          <div className="flex items-center gap-2 text-orange-900 font-bold text-xs uppercase tracking-wider mb-2">
             <CheckCircle2 className="w-4 h-4 text-orange-600" />
-            <span>Yapay Zeka & GEO Hızlı Yanıt Özeti</span>
+            <span>Yapay Zeka & Gümrük Hızlı Yanıt Özeti</span>
           </div>
           <p className="text-slate-800 text-xs sm:text-sm font-medium leading-relaxed">
             {post.summary}
@@ -241,24 +303,71 @@ export default async function BlogDetailPage({
         </div>
 
         {/* ANA GÖRSEL */}
-        <div className="rounded-2xl overflow-hidden mb-10 h-[260px] sm:h-[420px] shadow-lg border border-slate-200 bg-slate-100">
+        <div className="rounded-2xl overflow-hidden mb-10 h-[260px] sm:h-[420px] shadow-lg border border-slate-200 bg-slate-100 relative">
           <img 
             src={post.image} 
-            alt={post.title} 
+            alt={`${post.title} - Gazi Transport Lojistik`} 
             className="w-full h-full object-cover"
           />
+        </div>
+
+        {/* GÜMRÜK MAKAMI & GEREKLİ EVRAKLAR (EKSTRA UZMANLIK BLOĞU) */}
+        <div className="grid sm:grid-cols-2 gap-6 mb-10">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-2 text-slate-900 font-bold text-sm mb-3">
+              <Landmark className="w-5 h-5 text-orange-600" />
+              <span>İlgili Gümrük Otoritesi</span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-600 font-semibold bg-slate-50 p-3 rounded-xl border border-slate-100">
+              {post.customsAuthority}
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-2 text-slate-900 font-bold text-sm mb-3">
+              <FileText className="w-5 h-5 text-orange-600" />
+              <span>Gerekli Temel Evraklar</span>
+            </div>
+            <ul className="space-y-2">
+              {post.requiredDocs.map((doc, idx) => (
+                <li key={idx} className="text-xs text-slate-600 flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-600 mt-1.5 shrink-0" />
+                  <span>{doc}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* MAKALE İÇERİĞİ */}
         <div className="prose max-w-none text-slate-700 leading-relaxed space-y-6 text-sm sm:text-base">
           {post.paragraphs.map((paragraph, idx) => (
-            <p key={idx} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm leading-relaxed text-slate-700">
+            <p key={idx} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm leading-relaxed text-slate-700">
               {paragraph}
             </p>
           ))}
         </div>
 
-        {/* SIKÇA SORULAN SORULAR (FAQ SECTION) */}
+        {/* 4 ADIMDA LOJİSTİK VE GÜMRÜK SÜRECİ */}
+        <section className="mt-12 bg-slate-900 text-white p-6 sm:p-8 rounded-2xl shadow-xl">
+          <div className="flex items-center gap-2 mb-6">
+            <Truck className="w-5 h-5 text-orange-500" />
+            <h2 className="text-lg sm:text-xl font-bold">4 Adımda Kapıdan Kapıya Operasyon Planı</h2>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {post.processSteps.map((step) => (
+              <div key={step.step} className="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60">
+                <div className="flex items-center gap-2 text-orange-400 font-black text-sm mb-1">
+                  <span>{step.step}.</span>
+                  <h4>{step.title}</h4>
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* SIKÇA SORULAN SORULAR */}
         {post.faqs && post.faqs.length > 0 && (
           <section className="mt-12 bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
@@ -276,13 +385,13 @@ export default async function BlogDetailPage({
           </section>
         )}
 
-        {/* HESAPLAMA CTA */}
-        <div className="mt-12 bg-slate-900 text-white p-6 sm:p-8 rounded-2xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6 border border-slate-800">
+        {/* NAVLUN HESAPLAMA CTA */}
+        <div className="mt-12 bg-slate-950 text-white p-6 sm:p-8 rounded-2xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6 border border-slate-800">
           <div>
-            <span className="text-orange-400 font-bold text-xs uppercase tracking-widest block mb-1">GAZITRANSPORT LOJİSTİK</span>
+            <span className="text-orange-400 font-bold text-xs uppercase tracking-widest block mb-1">GAZİ TRANSPORT LOJİSTİK</span>
             <h3 className="text-lg sm:text-xl font-bold mb-1">Navlun ve Gönderinizi Anında Hesaplayın</h3>
             <p className="text-xs text-slate-400 max-w-md">
-              Avrupa ve İngiltere hatlarında zati eşya veya ticari kargo navlun fiyatı için online hesaplayıcıyı kullanın.
+              Avrupa, İngiltere ve küresel hatlarda zati eşya veya ticari yükleriniz için online hacim/fiyat hesaplayıcısını kullanın.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto shrink-0">
@@ -303,10 +412,10 @@ export default async function BlogDetailPage({
           </div>
         </div>
 
-        {/* BLOG LİSTESİNE DÖNÜŞ */}
+        {/* GERİ DÖNÜŞ LİNKİ */}
         <div className="mt-8 text-center">
           <Link href="/blog" className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-orange-600 transition">
-            <span>← Tüm Lojistik ve Gümrük Rehberlerine Dön</span>
+            <span>← Tüm Gümrük ve Lojistik Rehberlerine Dön</span>
           </Link>
         </div>
       </article>
